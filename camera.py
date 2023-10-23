@@ -49,7 +49,7 @@ class Camera:
         if key[pg.K_UP]:
             self.control_rotate_x(-self.rotation_speed)
         if key[pg.K_DOWN]:
-            self.control_rotate_x(-self.rotation_speed)
+            self.control_rotate_x(self.rotation_speed)
 
     def control_rotate_y(self, angle: float):
         '''Поворот камеры (векторов forward, right и up на угол angle) вокруг оси OY'''

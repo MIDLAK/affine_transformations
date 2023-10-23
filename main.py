@@ -22,22 +22,25 @@ class Render:
         '''Создание экземпляра объекта'''
         # создание камеры и задание ей положения
         self.camera = Camera(self, [0.5, 1, -4])
-        # созадние проекции
+        # созадние проекции и фигуры
         self.projection = Projection(self)
         self.object = Object3D(self)
+        # для фигуры будет особое действие
+        self.object.is_figure = True
 
-        #действия над объектов
+        #действия над объектом
         self.object.translate(tx=0.2, ty=0.4, tz=0.2)
         #self.object.rotate_y(angle=math.pi/6)
 
         # создание локальной и мировой систем координат
         self.local_axes = Axes(self)
-        self.local_axes.translate(tx=0.7, ty=0.9, tz=0.7)
+        #self.local_axes.translate(tx=0.7, ty=0.9, tz=0.7)
+        center = np.mean(self.object.vertexes, axis=0)
+        self.local_axes.translate(tx=center[0], ty=center[1], tz=center[2])
         self.world_axes = Axes(self)
         self.world_axes.movement_flag = False
         #self.world_axes.scale(1)
         self.world_axes.translate(tx=0.0001, ty=0.0001, tz=0.0001)
-
 
     def draw(self):
         '''Отрисовка'''

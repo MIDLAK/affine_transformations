@@ -1,18 +1,27 @@
 import pygame as pg
 from matrix_functions import *
 
+import time
+
 class Object3D:
     def __init__(self, render):
         self.render = render
         # вершины объекта
         #self.vertexes = np.array([(0, 0, 0, 1), (0, 1, 0, 1), (1, 1,0 ,1), (1, 0, 0, 1), 
         #                          (0 ,0, 1, 1), (0, 1 ,1 ,1), (1 ,1 ,1 ,1), (1 ,0 ,1 ,1)])  
-        self.vertexes = np.array([(0, 0, 0, 1), (0, 1, 0, 1), (1, 1,0 ,1), (1, 0, 0, 1), 
-                                  (0 ,0, 1, 1), (0, 1 ,1 ,1), (1 ,1 ,1 ,1), (1 ,0 ,1 ,1)])  
+        #self.vertexes = np.array([(0, 0, 0, 1), (0, 1, 0, 1), (1, 1, 0, 1), (1, 0, 0, 1), 
+        #                          (0 ,0, 1, 1), (0, 1, 1 ,1), (1 ,1 ,1 ,1), (1 ,0 ,1 ,1)])  
+
+        # пиромида
+        self.vertexes = np.array([(0, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1), (1, 0, 0, 1)])
+        self.vertexes_orig = np.array([(0, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1), (1, 0, 0, 1)])
+        self.faces = np.array([(0, 1, 2), (2, 1, 3), (3, 0, 1), (0, 2, 3)])
+
+        self.is_figure = False
 
         # грани объекта, описанные по индексам вершин 
-        self.faces = np.array([(0, 1, 2, 3), (4, 5, 6, 7), (0, 4, 5, 1), (2, 3, 7, 6),
-                               (1, 2, 6, 5), (0, 3, 7, 4)])
+        #self.faces = np.array([(0, 1, 2, 3), (4, 5, 6, 7), (0, 4, 5, 1), (2, 3, 7, 6),
+        #                       (1, 2, 6, 5), (0, 3, 7, 4)])
 
         # мировая система координат
         self.font = pg.font.SysFont('Aria', 30, bold=True)
@@ -29,6 +38,8 @@ class Object3D:
         '''Постоянно выполняющееся действие над объетом'''
         if self.movement_flag:
             self.rotate_y(pg.time.get_ticks() % 0.005)
+            if self.is_figure:
+                self.rotate_center(pg.time.get_ticks() % 0.005)
 
     def screen_projection(self):
         # перенос вершин в пространство камеры
@@ -70,6 +81,18 @@ class Object3D:
     def scale(self, sx=0.0, sy=0.0, sz=0.0):
         '''Масштабирование объекта'''
         self.vertexes = self.vertexes @ scale(sx=sx, sy=sy, sz=sz)
+
+    def rotate_center(self, angle: float):
+        '''Вращение вокург геометрического цента фигуры'''
+        # вычисление геом. цента.
+        center = np.mean(self.vertexes, axis=0)
+        # смещение в начало мировой системы координат
+        world_translated_vertexes = self.vertexes - center
+        # поворот на угол angle
+        rotated_vertexes = world_translated_vertexes @ rotate_y(angle=angle)
+        # обратное смещение координат к исходной точке
+        final_rotated_vertexes = rotated_vertexes + center
+        self.vertexes = final_rotated_vertexes
 
     def rotate_x(self, angle: float):
         '''Вращение вокруг оси OX на угол angle'''
